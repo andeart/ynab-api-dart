@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:test/test.dart';
 import 'package:ynab_api_dart/formatters.dart';
 
@@ -28,6 +30,51 @@ void main() {
 
     test('returns toString for non-null values', () {
       expect(stringValue(42), '42');
+    });
+  });
+
+  group('formatTable', () {
+    test('formats headers and rows as a table string', () {
+      final result = formatTable(
+        headers: const ['Name', 'Balance'],
+        rows: const [
+          ['Checking', r'$1.50'],
+          ['Savings', r'$25.00'],
+        ],
+      );
+
+      expect(
+        result,
+        'Name      Balance\n'
+        '--------  -------\n'
+        'Checking  \$1.50  \n'
+        'Savings   \$25.00 \n',
+      );
+    });
+
+    test('returns no results for empty rows', () {
+      final result = formatTable(headers: const ['Name'], rows: const []);
+
+      expect(result, '(no results)\n');
+    });
+  });
+
+  group('saveResults', () {
+    test('creates temp directory and writes file', () {
+      final tempDir = Directory.systemTemp.createTempSync('ynab_test_');
+      final originalDir = Directory.current;
+      Directory.current = tempDir;
+
+      try {
+        saveResults('accounts', 'Name\n----\nTest\n');
+
+        final file = File('${tempDir.path}/temp/accounts.txt');
+        expect(file.existsSync(), isTrue);
+        expect(file.readAsStringSync(), 'Name\n----\nTest\n');
+      } finally {
+        Directory.current = originalDir;
+        tempDir.deleteSync(recursive: true);
+      }
     });
   });
 }

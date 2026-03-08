@@ -11,6 +11,7 @@ class AccountsCommand extends YnabCommand {
   @override
   Future<int> run() async {
     final accounts = await withClient((client) => client.getAccounts(planId));
+    const headers = <String>['Name', 'ID', 'Type', 'Balance'];
     final rows = accounts
         .map(
           (account) => <String>[
@@ -22,10 +23,8 @@ class AccountsCommand extends YnabCommand {
         )
         .toList(growable: false);
 
-    printTable(
-      headers: const <String>['Name', 'ID', 'Type', 'Balance'],
-      rows: rows,
-    );
+    printTable(headers: headers, rows: rows);
+    saveResults(name, formatTable(headers: headers, rows: rows));
     return 0;
   }
 }

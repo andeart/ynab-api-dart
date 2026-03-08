@@ -13,6 +13,14 @@ class CategoriesCommand extends YnabCommand {
     final categories = await withClient(
       (client) => client.getCategories(planId),
     );
+    const headers = <String>[
+      'Group',
+      'Name',
+      'ID',
+      'Budgeted',
+      'Activity',
+      'Balance',
+    ];
     final rows = categories
         .map(
           (category) => <String>[
@@ -26,17 +34,8 @@ class CategoriesCommand extends YnabCommand {
         )
         .toList(growable: false);
 
-    printTable(
-      headers: const <String>[
-        'Group',
-        'Name',
-        'ID',
-        'Budgeted',
-        'Activity',
-        'Balance',
-      ],
-      rows: rows,
-    );
+    printTable(headers: headers, rows: rows);
+    saveResults(name, formatTable(headers: headers, rows: rows));
     return 0;
   }
 }

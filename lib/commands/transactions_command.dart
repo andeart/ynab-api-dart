@@ -43,6 +43,15 @@ class TransactionsCommand extends YnabCommand {
       ),
     );
 
+    const headers = <String>[
+      'ID',
+      'Date',
+      'Amount',
+      'Payee',
+      'Category',
+      'Memo',
+      'Cleared',
+    ];
     final rows = transactions
         .map(
           (transaction) => <String>[
@@ -57,18 +66,8 @@ class TransactionsCommand extends YnabCommand {
         )
         .toList(growable: false);
 
-    printTable(
-      headers: const <String>[
-        'ID',
-        'Date',
-        'Amount',
-        'Payee',
-        'Category',
-        'Memo',
-        'Cleared',
-      ],
-      rows: rows,
-    );
+    printTable(headers: headers, rows: rows);
+    saveResults(name, formatTable(headers: headers, rows: rows));
     return 0;
   }
 }

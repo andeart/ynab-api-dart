@@ -66,15 +66,19 @@ class UpdateCommand extends YnabCommand {
       (client) => client.updateTransaction(planId, transactionId, fields),
     );
 
-    stdout.writeln('Updated transaction successfully:');
-    stdout.writeln('  ID: ${stringValue(updatedTransaction['id'])}');
-    stdout.writeln('  Date: ${stringValue(updatedTransaction['date'])}');
-    stdout.writeln('  Amount: ${formatAmount(updatedTransaction['amount'])}');
-    stdout.writeln('  Payee: ${stringValue(updatedTransaction['payee_name'])}');
-    stdout.writeln(
+    final output = StringBuffer();
+    output.writeln('Updated transaction successfully:');
+    output.writeln('  ID: ${stringValue(updatedTransaction['id'])}');
+    output.writeln('  Date: ${stringValue(updatedTransaction['date'])}');
+    output.writeln('  Amount: ${formatAmount(updatedTransaction['amount'])}');
+    output.writeln('  Payee: ${stringValue(updatedTransaction['payee_name'])}');
+    output.writeln(
       '  Category: ${stringValue(updatedTransaction['category_name'])}',
     );
-    stdout.writeln('  Memo: ${stringValue(updatedTransaction['memo'])}');
+    output.writeln('  Memo: ${stringValue(updatedTransaction['memo'])}');
+
+    stdout.write(output);
+    saveResults(name, output.toString());
     return 0;
   }
 }

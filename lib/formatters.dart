@@ -4,37 +4,7 @@ void printTable({
   required List<String> headers,
   required List<List<String>> rows,
 }) {
-  final allRows = <List<String>>[headers, ...rows];
-  final widths = List<int>.generate(
-    headers.length,
-    (index) => allRows
-        .map((row) => row[index].length)
-        .reduce((current, next) => current > next ? current : next),
-  );
-
-  String formatRow(List<String> row) {
-    return List<String>.generate(
-      row.length,
-      (index) => row[index].padRight(widths[index]),
-    ).join('  ');
-  }
-
-  stdout.writeln(formatRow(headers));
-  stdout.writeln(
-    List<String>.generate(
-      widths.length,
-      (index) => ''.padRight(widths[index], '-'),
-    ).join('  '),
-  );
-
-  if (rows.isEmpty) {
-    stdout.writeln('(no results)');
-    return;
-  }
-
-  for (final row in rows) {
-    stdout.writeln(formatRow(row));
-  }
+  stdout.write(formatTable(headers: headers, rows: rows));
 }
 
 String formatAmount(Object? milliunitsValue) {
@@ -55,4 +25,49 @@ String stringValue(Object? value) {
   }
 
   return value.toString();
+}
+
+String formatTable({
+  required List<String> headers,
+  required List<List<String>> rows,
+}) {
+  if (rows.isEmpty) {
+    return '(no results)\n';
+  }
+
+  final allRows = <List<String>>[headers, ...rows];
+  final widths = List<int>.generate(
+    headers.length,
+    (index) => allRows
+        .map((row) => row[index].length)
+        .reduce((current, next) => current > next ? current : next),
+  );
+
+  String formatRow(List<String> row) {
+    return List<String>.generate(
+      row.length,
+      (index) => row[index].padRight(widths[index]),
+    ).join('  ');
+  }
+
+  final buffer = StringBuffer();
+  buffer.writeln(formatRow(headers));
+  buffer.writeln(
+    List<String>.generate(
+      widths.length,
+      (index) => ''.padRight(widths[index], '-'),
+    ).join('  '),
+  );
+  for (final row in rows) {
+    buffer.writeln(formatRow(row));
+  }
+  return buffer.toString();
+}
+
+void saveResults(String commandName, String content) {
+  final directory = Directory('temp');
+  if (!directory.existsSync()) {
+    directory.createSync();
+  }
+  File('temp/$commandName.txt').writeAsStringSync(content);
 }
