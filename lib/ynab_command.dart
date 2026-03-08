@@ -26,8 +26,8 @@ abstract class YnabCommand extends Command<int> {
     argParser.addOption(
       'plan-id',
       abbr: 'p',
-      mandatory: true,
-      help: 'Plan or budget ID, or "last-used".',
+      defaultsTo: 'last-used',
+      help: 'Plan or budget ID, or "last-used" (default).',
     );
   }
 
