@@ -18,6 +18,7 @@ class CategoriesCommand extends YnabCommand {
           (category) => <String>[
             stringValue(category['category_group_name']),
             stringValue(category['name']),
+            stringValue(category['id']),
             formatAmount(category['budgeted']),
             formatAmount(category['activity']),
             formatAmount(category['balance']),
@@ -29,6 +30,7 @@ class CategoriesCommand extends YnabCommand {
       headers: const <String>[
         'Group',
         'Name',
+        'ID',
         'Budgeted',
         'Activity',
         'Balance',
