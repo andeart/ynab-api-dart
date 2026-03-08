@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:ynab_api_dart/commands/accounts_command.dart';
+import 'package:ynab_api_dart/commands/categories_command.dart';
 import 'package:ynab_api_dart/commands/transactions_command.dart';
 import 'package:ynab_api_dart/commands/update_command.dart';
 import 'package:ynab_api_dart/ynab_client.dart';
@@ -14,6 +15,7 @@ class YnabCommandRunner extends CommandRunner<int> {
         'List YNAB accounts, inspect transactions, and update a transaction.',
       ) {
     addCommand(AccountsCommand());
+    addCommand(CategoriesCommand());
     addCommand(TransactionsCommand());
     addCommand(UpdateCommand());
   }

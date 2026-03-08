@@ -76,6 +76,30 @@ class YnabClient {
         .toList(growable: false);
   }
 
+  Future<List<Map<String, dynamic>>> getCategories(String planId) async {
+    final response = await _get(_endpoint('/budgets/$planId/categories'));
+    final data = _decodeJson(response.body);
+    final categoryGroups = data['data']?['category_groups'];
+
+    if (categoryGroups is! List) {
+      throw YnabApiException('Unexpected categories response from YNAB.');
+    }
+
+    final categories = <Map<String, dynamic>>[];
+    for (final group in categoryGroups.whereType<Map>()) {
+      final groupName = group['name'];
+      final groupCategories = group['categories'];
+      if (groupCategories is! List) continue;
+      for (final category in groupCategories.whereType<Map>()) {
+        categories.add({
+          ...Map<String, dynamic>.from(category),
+          'category_group_name': groupName,
+        });
+      }
+    }
+    return categories;
+  }
+
   Future<Map<String, dynamic>> updateTransaction(
     String planId,
     String transactionId,
