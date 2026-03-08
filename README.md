@@ -7,17 +7,18 @@
 `ynab-api-dart` is a Dart CLI for working with the YNAB API. The commands currently implemented let you:
 
 1. **List accounts** to discover account IDs
-2. **List transactions** to discover transaction IDs, optionally filtered by account and date
-3. **Update a transaction** by supplying the fields to change in a YAML file
+2. **List categories** to see budgeted, activity, and balance for every category
+3. **List transactions** to discover transaction IDs, optionally filtered by account and date
+4. **Update a transaction** by supplying the fields to change in a YAML file
 
 All commands authenticate via the `YNAB_API_TOKEN` environment variable.
 
 ## Features
 
 - List accounts for a plan/budget and inspect their IDs, types, and balances.
+- List budget categories grouped by category group, showing budgeted, activity, and balance amounts.
 - List transactions for a specific account, with optional date filtering.
 - Update a single transaction using a YAML file that contains only the fields you want to change.
-- More coming soon.
 
 ## API Endpoints
 
@@ -26,13 +27,18 @@ All commands authenticate via the `YNAB_API_TOKEN` environment variable.
 - **GET** `https://api.ynab.com/v1/budgets/{plan_id}/accounts`
 - Response: `data.accounts[]` — each has `id`, `name`, `type`, `on_budget`, `closed`, `balance` (milliunits)
 
-### 2. List transactions by account
+### 2. List categories
+
+- **GET** `https://api.ynab.com/v1/budgets/{plan_id}/categories`
+- Response: `data.category_groups[]` — each group contains `categories[]` with `id`, `name`, `budgeted`, `activity`, `balance` (milliunits)
+
+### 3. List transactions by account
 
 - **GET** `https://api.ynab.com/v1/budgets/{plan_id}/accounts/{account_id}/transactions`
 - Query params: `since_date` (ISO date, optional), `type` (`uncategorized` | `unapproved`, optional)
 - Response: `data.transactions[]` — each has `id`, `date`, `amount`, `payee_name`, `category_name`, `memo`, `cleared`, `approved`
 
-### 3. Update a transaction
+### 4. Update a transaction
 
 - **PUT** `https://api.ynab.com/v1/budgets/{plan_id}/transactions/{transaction_id}`
 - Body: `{"transaction": { ...fields... }}`
@@ -63,6 +69,7 @@ ynab_api_dart/
   lib/
     commands/
       accounts_command.dart
+      categories_command.dart
       transactions_command.dart
       update_command.dart
     formatters.dart         # Shared output helpers
@@ -84,6 +91,15 @@ dart run bin/ynab_api_dart.dart accounts --plan-id last-used
 
 - `--plan-id` (`-p`): Plan/budget ID or `last-used`. **Required.**
 - Output: a table of account name, ID, type, and balance.
+
+### `categories` — List all budget categories
+
+```bash
+dart run bin/ynab_api_dart.dart categories --plan-id last-used
+```
+
+- `--plan-id` (`-p`): Plan/budget ID or `last-used`. **Required.**
+- Output: a table of group name, category name, budgeted, activity, and balance.
 
 ### `transactions` — List transactions for an account
 
@@ -130,6 +146,7 @@ Only include the fields you want to change. The CLI wraps them in `{"transaction
 
 - **`lib/ynab_client.dart`**: Defines a `YnabClient` class that stores the API token and exposes async methods for the currently implemented API operations:
   - `getAccounts(planId)` — Sends the accounts GET request and returns a parsed list.
+  - `getCategories(planId)` — Sends the categories GET request and returns a flat list with `category_group_name` injected into each entry.
   - `getTransactions(planId, accountId, {sinceDate})` — Sends the transactions GET request and returns a parsed list.
   - `updateTransaction(planId, transactionId, Map fields)` — Sends the PUT request and returns the parsed updated transaction.
   - Each method throws on non-200 responses using the API error message when available.

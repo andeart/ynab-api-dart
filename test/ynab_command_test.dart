@@ -8,7 +8,12 @@ void main() {
 
       expect(
         runner.commands.keys,
-        containsAll(<String>['accounts', 'transactions', 'update']),
+        containsAll(<String>[
+          'accounts',
+          'categories',
+          'transactions',
+          'update',
+        ]),
       );
     });
   });

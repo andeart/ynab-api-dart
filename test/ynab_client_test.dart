@@ -93,6 +93,99 @@ void main() {
       client.close();
     });
 
+    test(
+      'getCategories flattens category groups and sends correct URL',
+      () async {
+        late http.Request request;
+        final client = YnabClient(
+          'test-token',
+          httpClient: MockClient((incomingRequest) async {
+            request = incomingRequest;
+            return http.Response(
+              jsonEncode({
+                'data': {
+                  'category_groups': [
+                    {
+                      'id': 'group-1',
+                      'name': 'Bills',
+                      'hidden': false,
+                      'deleted': false,
+                      'categories': [
+                        {
+                          'id': 'cat-1',
+                          'name': 'Rent',
+                          'budgeted': 1500000,
+                          'activity': -1500000,
+                          'balance': 0,
+                        },
+                      ],
+                    },
+                    {
+                      'id': 'group-2',
+                      'name': 'Food',
+                      'hidden': false,
+                      'deleted': false,
+                      'categories': [
+                        {
+                          'id': 'cat-2',
+                          'name': 'Groceries',
+                          'budgeted': 400000,
+                          'activity': -200000,
+                          'balance': 200000,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              }),
+              200,
+            );
+          }),
+        );
+
+        final categories = await client.getCategories('plan-123');
+
+        expect(categories, hasLength(2));
+        expect(categories[0]['name'], 'Rent');
+        expect(categories[0]['category_group_name'], 'Bills');
+        expect(categories[1]['name'], 'Groceries');
+        expect(categories[1]['category_group_name'], 'Food');
+        expect(
+          request.url.toString(),
+          'https://api.ynab.com/v1/budgets/plan-123/categories',
+        );
+
+        client.close();
+      },
+    );
+
+    test('getCategories throws on an unexpected response shape', () async {
+      final client = YnabClient(
+        'test-token',
+        httpClient: MockClient((_) async {
+          return http.Response(
+            jsonEncode({
+              'data': {'category_groups': 'bad'},
+            }),
+            200,
+          );
+        }),
+      );
+
+      await expectLater(
+        client.getCategories('plan-123'),
+        throwsA(
+          isA<YnabApiException>().having(
+            (error) => error.message,
+            'message',
+            'Unexpected categories response from YNAB.',
+          ),
+        ),
+      );
+
+      client.close();
+    });
+
     test('getTransactions includes optional query parameters', () async {
       late http.Request request;
       final client = YnabClient(

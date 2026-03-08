@@ -35,30 +35,13 @@ ynab-api/
 
 ## Core Conventions
 
-### Dart Style
+### Before Committing
 
-- Follow `package:lints/recommended.yaml`. Run `dart analyze` before committing.
+- Follow `package:lints/recommended.yaml`. Run `dart analyze`.
+- Fix linting errors with `dart fix --apply`.
 - Format all Dart files with `dart format .`.
+- Run tests with `dart test`.
 - Use explicit type annotations for public APIs; inference is fine for local variables.
-
-## Common Commands
-
-```bash
-# Run a command
-dart run bin/ynab_api_dart.dart <command> [options]
-
-# Run static analysis
-dart analyze
-
-# Fix linting errors
-dart fix --apply
-
-# Format code
-dart format .
-
-# Run tests
-dart test
-```
 
 ### Exit Codes
 
