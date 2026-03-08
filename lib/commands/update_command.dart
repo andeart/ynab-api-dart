@@ -15,6 +15,7 @@ const Set<String> _allowedUpdateFields = <String>{
   'cleared',
   'approved',
   'flag_color',
+  'subtransactions',
 };
 
 class UpdateCommand extends YnabCommand {
