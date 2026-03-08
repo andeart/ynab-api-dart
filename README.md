@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ynab-api-dart` is a Dart CLI for working with the YNAB API. It provides three subcommands that let you:
+`ynab-api-dart` is a Dart CLI for working with the YNAB API. The commands currently implemented let you:
 
 1. **List accounts** to discover account IDs
 2. **List transactions** to discover transaction IDs, optionally filtered by account and date
@@ -15,23 +15,24 @@ All commands authenticate via the `YNAB_API_TOKEN` environment variable.
 - List accounts for a plan/budget and inspect their IDs, types, and balances.
 - List transactions for a specific account, with optional date filtering.
 - Update a single transaction using a YAML file that contains only the fields you want to change.
+- More coming soon.
 
 ## API Endpoints
 
 ### 1. List accounts
 
-- **GET** `https://api.ynab.com/v1/plans/{plan_id}/accounts`
+- **GET** `https://api.ynab.com/v1/budgets/{plan_id}/accounts`
 - Response: `data.accounts[]` — each has `id`, `name`, `type`, `on_budget`, `closed`, `balance` (milliunits)
 
 ### 2. List transactions by account
 
-- **GET** `https://api.ynab.com/v1/plans/{plan_id}/accounts/{account_id}/transactions`
+- **GET** `https://api.ynab.com/v1/budgets/{plan_id}/accounts/{account_id}/transactions`
 - Query params: `since_date` (ISO date, optional), `type` (`uncategorized` | `unapproved`, optional)
 - Response: `data.transactions[]` — each has `id`, `date`, `amount`, `payee_name`, `category_name`, `memo`, `cleared`, `approved`
 
 ### 3. Update a transaction
 
-- **PUT** `https://api.ynab.com/v1/plans/{plan_id}/transactions/{transaction_id}`
+- **PUT** `https://api.ynab.com/v1/budgets/{plan_id}/transactions/{transaction_id}`
 - Body: `{"transaction": { ...fields... }}`
 - Updatable fields (all optional): `account_id`, `date`, `amount` (milliunits), `payee_id`, `payee_name`, `category_id`, `memo`, `cleared`, `approved`, `flag_color`
 
@@ -56,16 +57,22 @@ export YNAB_API_TOKEN=your_token_here
 ```text
 ynab_api_dart/
   bin/
-    ynab_api_dart.dart      # CLI entry point with subcommand routing
+    ynab_api_dart.dart      # Thin CLI entry point with top-level error handling
   lib/
-    ynab_client.dart        # YNAB API client (all three API calls)
+    commands/
+      accounts_command.dart
+      transactions_command.dart
+      update_command.dart
+    formatters.dart         # Shared output helpers
+    ynab_client.dart        # YNAB API client for the currently implemented API calls
+    ynab_command.dart       # Base command + command runner
   pubspec.yaml
   example_transaction.yaml  # Example YAML input for the update command
 ```
 
 ## Usage
 
-The CLI uses the `args` package `CommandRunner` to expose three subcommands.
+The CLI uses the `args` package `CommandRunner` to expose the currently implemented subcommands.
 
 ### `accounts` — List all accounts
 
@@ -119,12 +126,15 @@ Only include the fields you want to change. The CLI wraps them in `{"transaction
 
 ## Implementation Notes
 
-- **`lib/ynab_client.dart`**: Defines a `YnabClient` class that stores the API token and exposes three async methods:
+- **`lib/ynab_client.dart`**: Defines a `YnabClient` class that stores the API token and exposes async methods for the currently implemented API operations:
   - `getAccounts(planId)` — Sends the accounts GET request and returns a parsed list.
   - `getTransactions(planId, accountId, {sinceDate})` — Sends the transactions GET request and returns a parsed list.
   - `updateTransaction(planId, transactionId, Map fields)` — Sends the PUT request and returns the parsed updated transaction.
   - Each method throws on non-200 responses using the API error message when available.
-- **`bin/ynab_api_dart.dart`**: Uses `CommandRunner` with three `Command` subclasses (`AccountsCommand`, `TransactionsCommand`, `UpdateCommand`). Each command validates its flags, reads `YNAB_API_TOKEN` from the environment, calls the client, and formats output for the terminal.
+- **`lib/ynab_command.dart`**: Defines `YnabCommand`, which adds shared CLI behavior like `--plan-id`, token loading, and `withClient()`, plus `YnabCommandRunner`, which registers commands.
+- **`lib/commands/`**: Contains one file per command (`AccountsCommand`, `TransactionsCommand`, `UpdateCommand`).
+- **`lib/formatters.dart`**: Holds shared output helpers for tables and amount formatting.
+- **`bin/ynab_api_dart.dart`**: Thin entry point that runs the command runner and maps exceptions to exit codes.
 
 ## Error Handling
 
