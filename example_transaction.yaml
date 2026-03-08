@@ -1,0 +1,15 @@
+# Example fields for the `update` command.
+# Include only the keys you want to change.
+
+date: "2026-03-01"
+amount: -25000
+payee_name: "Grocery Store"
+memo: "Weekly groceries"
+cleared: cleared
+approved: true
+flag_color: green
+
+# Other supported keys:
+# account_id: "00000000-0000-0000-0000-000000000000"
+# payee_id: "00000000-0000-0000-0000-000000000000"
+# category_id: "00000000-0000-0000-0000-000000000000"
