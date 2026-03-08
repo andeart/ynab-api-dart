@@ -38,4 +38,10 @@ jobs:
         with:
           sdk: ${{ env.DART_SDK_VERSION }}
       - run: dart pub get
-      - run: dart test
+      - run: dart test --file-reporter json:test-results.json
+      - uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results
+          path: test-results.json
+          reporter: dart-json
