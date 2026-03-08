@@ -42,7 +42,7 @@ All commands authenticate via the `YNAB_API_TOKEN` environment variable.
 
 - **PUT** `https://api.ynab.com/v1/budgets/{plan_id}/transactions/{transaction_id}`
 - Body: `{"transaction": { ...fields... }}`
-- Updatable fields (all optional): `account_id`, `date`, `amount` (milliunits), `payee_id`, `payee_name`, `category_id`, `memo`, `cleared`, `approved`, `flag_color`
+- Updatable fields (all optional): `account_id`, `date`, `amount` (milliunits), `payee_id`, `payee_name`, `category_id`, `memo`, `cleared`, `approved`, `flag_color`, `subtransactions`
 
 ## Setup
 
@@ -141,6 +141,31 @@ flag_color: green
 ```
 
 Only include the fields you want to change. The CLI wraps them in `{"transaction": {...}}` before sending the request to the YNAB API.
+
+#### Splitting a Transaction with Sub-Transactions
+
+To split a transaction across multiple categories, add a `subtransactions` list. Each sub-transaction requires an `amount` (in milliunits) and optionally accepts `payee_id`, `payee_name`, `category_id`, and `memo`. The sub-transaction amounts must sum to the parent transaction's `amount`.
+
+```yaml
+date: "2026-03-01"
+amount: -50000
+payee_name: "Supermarket"
+memo: "Weekly shopping"
+cleared: cleared
+approved: true
+subtransactions:
+  - amount: -25000
+    category_id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+    memo: "Groceries"
+  - amount: -15000
+    category_id: "ffffffff-1111-2222-3333-444444444444"
+    memo: "Household supplies"
+  - amount: -10000
+    category_id: "55555555-6666-7777-8888-999999999999"
+    memo: "Snacks"
+```
+
+> **Note:** Updating `subtransactions` on a transaction that is already a split is not supported by the YNAB API. Sub-transactions can only be added to a non-split transaction.
 
 ## Implementation Notes
 
