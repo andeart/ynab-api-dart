@@ -26,7 +26,13 @@ class CategoriesCommand extends YnabCommand {
         .toList(growable: false);
 
     printTable(
-      headers: const <String>['Group', 'Name', 'Budgeted', 'Activity', 'Balance'],
+      headers: const <String>[
+        'Group',
+        'Name',
+        'Budgeted',
+        'Activity',
+        'Balance',
+      ],
       rows: rows,
     );
     return 0;
