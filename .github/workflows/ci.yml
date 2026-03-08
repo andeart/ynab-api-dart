@@ -32,10 +32,18 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ env.DART_SDK_VERSION }}
       - run: dart pub get
-      - run: dart test
+      - run: dart test --file-reporter json:test-results.json
+      - uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results
+          path: test-results.json
+          reporter: dart-json

@@ -1,5 +1,7 @@
 # ynab-api-dart
 
+[![CI](https://github.com/andeart/ynab-api-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/andeart/ynab-api-dart/actions/workflows/ci.yml)
+
 ## Overview
 
 `ynab-api-dart` is a Dart CLI for working with the YNAB API. The commands currently implemented let you:
