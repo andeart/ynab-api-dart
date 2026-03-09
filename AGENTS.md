@@ -37,6 +37,8 @@ ynab-api/
 
 ### Before Committing
 
+- Update version in `pubspec.yaml` according to Semantic Versioning 2.0.0.
+- Update `CHANGELOG.md` with a clear description of the changes.
 - Follow `package:lints/recommended.yaml`. Run `dart analyze`.
 - Fix linting errors with `dart fix --apply`.
 - Format all Dart files with `dart format .`.
